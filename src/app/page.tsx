@@ -35,32 +35,6 @@ export default function HomePage() {
     return () => clearInterval(t);
   }, []);
 
-  // Schedule notification check every time page loads
-  useEffect(() => {
-    const checkAndNotify = async () => {
-      if (typeof window === 'undefined' || !('Notification' in window)) return;
-      if (Notification.permission !== 'granted') return;
-      const { getUpcomingLunarEvents, checkNotificationDue: _check } = await import('@/lib/lunar');
-      // Dynamic import to avoid SSR issues
-      const { checkNotificationDue, getNotificationMessage } = await import('@/lib/notifications');
-      const events = getUpcomingLunarEvents(45).map((e) => ({
-        type: e.type as 'mung1' | 'ram',
-        solarDate: new Date(e.solarDate),
-        label: e.label,
-      }));
-      const due = checkNotificationDue(events);
-      for (const d of due) {
-        const { title, body } = getNotificationMessage(d);
-        // Send via API to push to all subscribers
-        await fetch('/api/send-notification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, body }),
-        }).catch(() => { });
-      }
-    };
-    checkAndNotify();
-  }, []);
 
   const goToPrevMonth = useCallback(() => {
     setDirection(-1);

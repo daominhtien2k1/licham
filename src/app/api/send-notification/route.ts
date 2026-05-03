@@ -1,29 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
-import fs from 'fs';
-import path from 'path';
-
-const DB_PATH = path.join(process.cwd(), 'data', 'subscriptions.json');
-
-webpush.setVapidDetails(
-  'mailto:licham@example.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
-
-function readSubscriptions(): PushSubscriptionJSON[] {
-  try {
-    if (!fs.existsSync(DB_PATH)) return [];
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
-  } catch {
-    return [];
-  }
-}
+import { kv } from '@vercel/kv';
 
 export async function POST(req: NextRequest) {
   try {
+    webpush.setVapidDetails(
+      'mailto:licham@example.com',
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
+      process.env.VAPID_PRIVATE_KEY || ''
+    );
     const { title, body, icon, tag } = await req.json();
-    const subs = readSubscriptions();
+    
+    // Lấy subscriptions từ Vercel KV
+    const subs: any[] = (await kv.get('subscriptions')) || [];
 
     if (subs.length === 0) {
       return NextResponse.json({ ok: false, message: 'No subscribers' });
@@ -48,7 +37,7 @@ export async function POST(req: NextRequest) {
     const failed = results.filter((r) => r.status === 'rejected').length;
 
     // Remove expired subscriptions (410 Gone)
-    const validSubs: PushSubscriptionJSON[] = [];
+    const validSubs: any[] = [];
     results.forEach((result, idx) => {
       if (result.status === 'fulfilled') {
         validSubs.push(subs[idx]);
@@ -59,7 +48,9 @@ export async function POST(req: NextRequest) {
         }
       }
     });
-    fs.writeFileSync(DB_PATH, JSON.stringify(validSubs, null, 2));
+    
+    // Lưu lại danh sách đã lọc vào KV
+    await kv.set('subscriptions', validSubs);
 
     return NextResponse.json({ ok: true, sent, failed });
   } catch (err) {

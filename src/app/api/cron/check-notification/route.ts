@@ -6,27 +6,15 @@ import { solarToLunar, getLunarMonthName } from '@/lib/lunar';
 // Instead of making an HTTP request to ourselves, we could abstract the sending logic, but for simplicity, 
 // we will fetch the absolute URL if available, or just call the logic directly.
 import webpush from 'web-push';
-import fs from 'fs';
-import path from 'path';
-
-webpush.setVapidDetails(
-  'mailto:licham@example.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-);
-
-function readSubscriptions(): webpush.PushSubscription[] {
-  try {
-    const DB_PATH = path.join(process.cwd(), 'data', 'subscriptions.json');
-    if (!fs.existsSync(DB_PATH)) return [];
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
-  } catch {
-    return [];
-  }
-}
+import { kv } from '@vercel/kv';
 
 export async function GET(req: NextRequest) {
   try {
+    webpush.setVapidDetails(
+      'mailto:licham@example.com',
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
+      process.env.VAPID_PRIVATE_KEY || ''
+    );
     // Vercel Cron Security Check
     const authHeader = req.headers.get('authorization');
     if (
@@ -81,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Nếu có sự kiện, gửi thông báo
-    const subs = readSubscriptions();
+    const subs: any[] = (await kv.get('subscriptions')) || [];
     if (subs.length === 0) {
       return NextResponse.json({ ok: true, message: 'No subscribers to notify', event: title });
     }

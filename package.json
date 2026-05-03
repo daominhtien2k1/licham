@@ -12,6 +12,7 @@
     "@forvn/vn-lunar-calendar": "^0.0.2",
     "@heroui/react": "^3.0.3",
     "@nextui-org/react": "^2.6.11",
+    "@vercel/kv": "^3.0.0",
     "framer-motion": "^12.38.0",
     "next": "16.2.4",
     "react": "19.2.4",
