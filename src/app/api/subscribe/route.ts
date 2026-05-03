@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { getSubscriptions, setSubscriptions } from '@/lib/redis';
 
 export async function POST(req: NextRequest) {
   try {
@@ -7,18 +7,14 @@ export async function POST(req: NextRequest) {
     if (!sub?.endpoint) {
       return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 });
     }
-    
-    // Đọc danh sách cũ từ Vercel KV (trả về rỗng nếu chưa có)
-    const subs: any[] = (await kv.get('subscriptions')) || [];
-    
-    // Kiểm tra xem đã đăng ký chưa
-    const exists = subs.find((s: any) => s.endpoint === sub.endpoint);
+
+    const subs = await getSubscriptions();
+    const exists = (subs as any[]).find((s: any) => s.endpoint === sub.endpoint);
     if (!exists) {
-      subs.push(sub);
-      // Lưu lại vào KV
-      await kv.set('subscriptions', subs);
+      (subs as any[]).push(sub);
+      await setSubscriptions(subs);
     }
-    
+
     return NextResponse.json({ ok: true, count: subs.length });
   } catch (err) {
     console.error('[subscribe POST]', err);
@@ -29,9 +25,9 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const { endpoint } = await req.json();
-    const subs: any[] = (await kv.get('subscriptions')) || [];
+    const subs = await getSubscriptions() as any[];
     const newSubs = subs.filter((s: any) => s.endpoint !== endpoint);
-    await kv.set('subscriptions', newSubs);
+    await setSubscriptions(newSubs);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
@@ -39,6 +35,6 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function GET() {
-  const subs: any[] = (await kv.get('subscriptions')) || [];
+  const subs = await getSubscriptions();
   return NextResponse.json({ count: subs.length });
 }

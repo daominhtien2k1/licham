@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
-import { kv } from '@vercel/kv';
+import { getSubscriptions, setSubscriptions } from '@/lib/redis';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,9 +10,8 @@ export async function POST(req: NextRequest) {
       process.env.VAPID_PRIVATE_KEY || ''
     );
     const { title, body, icon, tag } = await req.json();
-    
-    // Lấy subscriptions từ Vercel KV
-    const subs: any[] = (await kv.get('subscriptions')) || [];
+
+    const subs = await getSubscriptions() as any[];
 
     if (subs.length === 0) {
       return NextResponse.json({ ok: false, message: 'No subscribers' });
@@ -48,9 +47,8 @@ export async function POST(req: NextRequest) {
         }
       }
     });
-    
-    // Lưu lại danh sách đã lọc vào KV
-    await kv.set('subscriptions', validSubs);
+
+    await setSubscriptions(validSubs);
 
     return NextResponse.json({ ok: true, sent, failed });
   } catch (err) {
@@ -59,7 +57,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET: trigger a test notification
 export async function GET() {
   return NextResponse.json({ message: 'Use POST to send notifications' });
 }

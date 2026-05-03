@@ -6,7 +6,7 @@ import { solarToLunar, getLunarMonthName } from '@/lib/lunar';
 // Instead of making an HTTP request to ourselves, we could abstract the sending logic, but for simplicity, 
 // we will fetch the absolute URL if available, or just call the logic directly.
 import webpush from 'web-push';
-import { kv } from '@vercel/kv';
+import { getSubscriptions, setSubscriptions } from '@/lib/redis';
 
 export async function GET(req: NextRequest) {
   try {
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Nếu có sự kiện, gửi thông báo
-    const subs: any[] = (await kv.get('subscriptions')) || [];
+    const subs = await getSubscriptions() as any[];
     if (subs.length === 0) {
       return NextResponse.json({ ok: true, message: 'No subscribers to notify', event: title });
     }
