@@ -1,26 +1,334 @@
 @import "tailwindcss";
+@source "../../node_modules/@heroui/react/dist";
+/* HeroUI v3 uses CSS-in-JS, no separate stylesheet needed */
+/* Google Fonts loaded via <link> in layout.tsx */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0A0E1A;
+  --bg-secondary: #111827;
+  --bg-card: #141C2E;
+  --bg-card-hover: #1A2540;
+  --gold: #D4AF37;
+  --gold-light: #F0D060;
+  --gold-dark: #A8862A;
+  --red: #C0392B;
+  --red-light: #E74C3C;
+  --text-primary: #F5F0E8;
+  --text-secondary: #A0AEC0;
+  --text-muted: #4A5568;
+  --border: rgba(212, 175, 55, 0.22);
+  --border-hover: rgba(212, 175, 55, 0.5);
+  --glow-gold: 0 0 20px rgba(212, 175, 55, 0.3);
+  --glow-red: 0 0 20px rgba(192, 57, 43, 0.4);
+  --moon-yellow: #FFE066;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   SCROLLBAR
+======================================== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* ========================================
+   TYPOGRAPHY
+======================================== */
+.font-display {
+  font-family: 'Playfair Display', 'Noto Serif Display', serif;
+}
+
+.text-gold {
+  color: var(--gold);
+}
+.text-gold-light {
+  color: var(--gold-light);
+}
+.text-red-lucky {
+  color: var(--red-light);
+}
+
+/* ========================================
+   ANIMATED BACKGROUND
+======================================== */
+.bg-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.8) 0%, transparent 70%);
+  animation: twinkle var(--duration, 3s) ease-in-out infinite var(--delay, 0s);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.8); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+.lantern {
+  position: absolute;
+  animation: float var(--duration, 6s) ease-in-out infinite var(--delay, 0s);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+/* ========================================
+   CALENDAR
+======================================== */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day-cell {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: visible; /* allow SVG dashed border to bleed out */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.day-cell:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--glow-gold);
+}
+
+.day-cell.today {
+  border-color: transparent; /* SVG dashed border handles it */
+  background: rgba(212, 175, 55, 0.08);
+  box-shadow: var(--glow-gold);
+}
+
+.day-cell.today .solar-day {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* Mùng 1 — warm amber, same family as Rằm */
+.day-cell.mung1 {
+  border-color: rgba(255, 180, 50, 0.45);
+  background: rgba(255, 160, 30, 0.07);
+}
+
+.day-cell.ram {
+  border-color: rgba(255, 224, 102, 0.5);
+  background: rgba(255, 224, 102, 0.05);
+}
+
+.day-cell.selected {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 0 2px var(--gold), var(--glow-gold);
+}
+
+.day-cell.other-month {
+  opacity: 0.5;
+  border-color: transparent;
+  background: transparent;
+}
+
+.day-cell.sunday .solar-day {
+  color: var(--red-light);
+}
+.day-cell.saturday .solar-day {
+  color: #60a5fa;
+}
+
+.solar-day {
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.lunar-day {
+  font-size: clamp(9px, 1.2vw, 11px);
+  color: var(--text-secondary);
+  line-height: 1;
+  margin-top: 8px;
+}
+
+.day-cell.mung1 .lunar-day {
+  color: #FFB830;
+  font-weight: 600;
+}
+
+.day-cell.ram .lunar-day {
+  color: var(--moon-yellow);
+  font-weight: 600;
+}
+
+/* Animated dashed SVG border for today */
+@keyframes dash-march {
+  to { stroke-dashoffset: -16; }
+}
+
+
+/* ========================================
+   GLASS CARDS
+======================================== */
+.glass-card {
+  background: rgba(20, 28, 46, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.glass-card-gold {
+  background: rgba(212, 175, 55, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 16px;
+}
+
+/* ========================================
+   MOON ANIMATION
+======================================== */
+.moon-full {
+  animation: moon-glow 3s ease-in-out infinite;
+}
+
+@keyframes moon-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(255, 224, 102, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 24px rgba(255, 224, 102, 0.9));
+  }
+}
+
+/* ========================================
+   GOLD DIVIDER
+======================================== */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.4;
+  margin: 12px 0;
+}
+
+/* ========================================
+   INFO TAGS
+======================================== */
+.info-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.tag-gold {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.3);
+  color: var(--gold-light);
+}
+
+.tag-red {
+  background: rgba(192, 57, 43, 0.1);
+  border-color: rgba(192, 57, 43, 0.3);
+  color: #ef4444;
+}
+
+.tag-blue {
+  background: rgba(96, 165, 250, 0.1);
+  border-color: rgba(96, 165, 250, 0.3);
+  color: #93c5fd;
+}
+
+.tag-green {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #6ee7b7;
+}
+
+/* ========================================
+   NOTIFICATION BUTTON
+======================================== */
+.noti-btn-ring {
+  animation: btn-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
+}
+
+/* ========================================
+   HEADER TITLE GLOW
+======================================== */
+.title-glow {
+  text-shadow:
+    0 0 20px rgba(212, 175, 55, 0.5),
+    0 0 40px rgba(212, 175, 55, 0.2);
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+@media (max-width: 640px) {
+  .day-cell {
+    border-radius: 6px;
+    padding: 2px;
+  }
+  .solar-day {
+    font-size: 13px;
+  }
+  .lunar-day {
+    font-size: 9px;
+  }
+  .shimmer-badge {
+    display: none;
+  }
 }
