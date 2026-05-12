@@ -265,22 +265,11 @@ export default function HomePage() {
           </motion.div>
         </div>
 
-        {/* ====== FOOTER ====== */}
-        <motion.footer
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          style={{ textAlign: 'center', marginTop: '32px', paddingTop: '20px', borderTop: '1px solid rgba(212,175,55,0.1)' }}
-        >
-          <p style={{ color: '#4A5568', fontSize: '12px' }}>
-            ☽ Lịch Âm Việt Nam · Múi giờ UTC+7 · Thuật toán Hồ Ngọc Đức
-          </p>
-        </motion.footer>
       </div>
 
       {/* Responsive styles */}
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .main-layout {
             grid-template-columns: 1fr !important;
           }
