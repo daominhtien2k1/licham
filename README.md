@@ -7,7 +7,7 @@
 ## Tính năng
 
 - 📅 Xem lịch âm — dương song song theo tháng, đánh dấu Mùng 1 (🙏) và ngày Rằm (🌕).
-- ⏰ Đồng hồ thời gian thực + hiển thị ngày âm, năm Can Chi của hôm nay.
+- ⏰ Đồng hồ thời gian thực + hiển thị ngày âm của hôm nay.
 - 🔔 **Nhắc cúng lễ** qua Web Push: tự động báo trước **3 ngày, 1 ngày và đúng ngày** Mùng 1 / Rằm.
 - 📱 PWA — cài về màn hình chính (Add to Home Screen) để nhận thông báo cả khi đóng trình duyệt.
 - 🎨 Giao diện tối, ấm, responsive cho mobile.
@@ -19,7 +19,6 @@
 - **Redis** lưu push subscriptions
 - **web-push** gửi notification
 - **Vercel Cron** chạy job kiểm tra hàng ngày
-- Thuật toán lịch âm: Hồ Ngọc Đức (qua `@forvn/vn-lunar-calendar`)
 
 ## Phát triển
 

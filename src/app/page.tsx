@@ -118,7 +118,14 @@ export default function HomePage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{
                 color: '#D4AF37', fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
-                fontWeight: 700, fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em',
+                fontWeight: 700,
+                fontVariantNumeric: 'tabular-nums',
+                fontFeatureSettings: '"tnum" 1',
+                letterSpacing: '0.04em',
+                display: 'inline-block',
+                minWidth: '8.5ch',
+                textAlign: 'right',
+                fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
               }}>
                 {clock}
               </span>
