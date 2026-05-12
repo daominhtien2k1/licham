@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lịch Âm Việt Nam
 
-## Getting Started
+Ứng dụng web xem **lịch âm dương Việt Nam** và nhận **thông báo nhắc cúng lễ Mùng 1 / Rằm** ngay trong trình duyệt (Web Push, không cần cài app).
 
-First, run the development server:
+🔗 Demo: <https://lichamgiadinh.vercel.app>
+
+## Tính năng
+
+- 📅 Xem lịch âm — dương song song theo tháng, đánh dấu Mùng 1 (🙏) và ngày Rằm (🌕).
+- ⏰ Đồng hồ thời gian thực + hiển thị ngày âm, năm Can Chi của hôm nay.
+- 🔔 **Nhắc cúng lễ** qua Web Push: tự động báo trước **3 ngày, 1 ngày và đúng ngày** Mùng 1 / Rằm.
+- 📱 PWA — cài về màn hình chính (Add to Home Screen) để nhận thông báo cả khi đóng trình duyệt.
+- 🎨 Giao diện tối, ấm, responsive cho mobile.
+
+## Tech stack
+
+- **Next.js 16** (App Router) + **React 19**
+- **Framer Motion** cho animation
+- **Redis** lưu push subscriptions
+- **web-push** gửi notification
+- **Vercel Cron** chạy job kiểm tra hàng ngày
+- Thuật toán lịch âm: Hồ Ngọc Đức (qua `@forvn/vn-lunar-calendar`)
+
+## Phát triển
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mở <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Biến môi trường (`.env.local`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+REDIS_URL=redis://...
+VAPID_PUBLIC_KEY=...
+VAPID_PRIVATE_KEY=...
+VAPID_SUBJECT=mailto:you@example.com
+CRON_SECRET=...                  # bảo vệ endpoint /api/cron/check-notification
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=... # cùng giá trị với VAPID_PUBLIC_KEY
+```
 
-## Learn More
+Tạo cặp VAPID:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npx web-push generate-vapid-keys
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Quản lý subscriptions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Script CLI để liệt kê / xoá toàn bộ subscriptions trong Redis:
 
-## Deploy on Vercel
+```bash
+# Liệt kê tất cả client đã đăng ký push
+node --env-file=.env.local scripts/subscriptions.mjs list
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Xoá hết (cẩn thận — không hoàn tác được)
+node --env-file=.env.local scripts/subscriptions.mjs clear
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Xem [scripts/subscriptions.mjs](scripts/subscriptions.mjs).
+
+## Triển khai
+
+Deploy trực tiếp lên [Vercel](https://vercel.com). Thêm Redis (Upstash hoặc tương đương) và set các biến môi trường ở trên. Cron đã được khai báo trong `vercel.json` (nếu có) — gọi `/api/cron/check-notification` mỗi ngày.

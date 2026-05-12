@@ -5,8 +5,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Lịch Âm Việt Nam — Xem Lịch & Nhắc Nhở Mùng 1, Rằm",
   description:
-    "Lịch âm dương Việt Nam đầy đủ: xem ngày tháng âm lịch, Can Chi, Tiết Khí, Giờ Hoàng Đạo. Nhận thông báo trước 3 ngày, 1 ngày và đúng ngày Mùng 1, Rằm để cúng lễ.",
-  keywords: ["lịch âm", "âm lịch", "lịch Việt Nam", "mùng 1", "rằm", "can chi", "tiết khí"],
+    "Lịch âm dương Việt Nam: xem ngày tháng âm lịch và nhận thông báo trước 3 ngày, 1 ngày và đúng ngày Mùng 1, Rằm để cúng lễ.",
+  keywords: ["lịch âm", "âm lịch", "lịch Việt Nam", "mùng 1", "rằm"],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
